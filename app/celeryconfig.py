@@ -12,10 +12,13 @@ CELERYBEAT_SCHEDULE = {
         'task': 'app.cabotapp.tasks.run_all_checks',
         'schedule': timedelta(seconds=60),
     },
-    'update-shifts': {
-        'task': 'app.cabotapp.tasks.update_shifts',
-        'schedule': timedelta(seconds=1800),
-    },
+    # 'update-shifts': {
+    #     'task': 'app.cabotapp.tasks.update_shifts',
+    #     'schedule': timedelta(seconds=1800),
+    # },
 }
 
 CELERY_TIMEZONE = 'UTC'
+
+# Use True for debugging celery worker with ipdb
+# CELERY_ALWAYS_EAGER = True
