@@ -232,7 +232,7 @@ class Service(models.Model):
 
 class ServiceStatusSnapshot(models.Model):
     service = models.ForeignKey(Service, related_name='snapshots')
-    time = models.DateTimeField()
+    time = models.DateTimeField(db_index=True)
     num_checks_active = models.IntegerField(default=0)
     num_checks_passing = models.IntegerField(default=0)
     num_checks_failing = models.IntegerField(default=0)
@@ -497,12 +497,19 @@ class HttpStatusCheck(StatusCheck):
         result = StatusCheckResult(check=self)
         auth = (self.username, self.password)
         try:
-            resp = requests.get(
-                self.endpoint,
-                timeout=self.timeout,
-                verify=self.verify_ssl_certificate,
-                auth=auth
-            )
+            if self.username or self.password:
+                resp = requests.get(
+                    self.endpoint,
+                    timeout=self.timeout,
+                    verify=self.verify_ssl_certificate,
+                    auth=auth
+                )
+            else:
+                resp = requests.get(
+                    self.endpoint,
+                    timeout=self.timeout,
+                    verify=self.verify_ssl_certificate,
+                )
         except requests.RequestException as e:
             result.error = u'Request error occurred: %s' % (e,)
             result.succeeded = False
@@ -594,7 +601,7 @@ class StatusCheckResult(models.Model):
     """
     check = models.ForeignKey(StatusCheck)
     time = models.DateTimeField(null=False)
-    time_complete = models.DateTimeField(null=True)
+    time_complete = models.DateTimeField(null=True, db_index=True)
     raw_data = models.TextField(null=True)
     succeeded = models.BooleanField(default=False)
     error = models.TextField(null=True)
